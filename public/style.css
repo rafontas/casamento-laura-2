@@ -172,20 +172,10 @@ ul {
 }
 
 .hero__monogram {
-  font-family: var(--font-display);
-  font-size: 4.5rem;
-  font-weight: 500;
-  color: var(--color-text);
-  line-height: 0.9;
-  margin-bottom: 24px;
-}
-
-.hero__amp {
   display: block;
-  font-style: italic;
-  color: var(--color-accent);
-  font-size: 3.5rem;
-  margin: -6px 0;
+  width: 190px;
+  height: auto;
+  margin: 0 auto 24px;
 }
 
 .hero__names {
