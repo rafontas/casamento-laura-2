@@ -363,7 +363,7 @@ ul {
    ========================================================= */
 
 .gifts {
-  padding: 100px 0;
+  padding: 56px 0 100px;
   text-align: center;
   background: var(--color-bg-soft);
 }
@@ -373,7 +373,9 @@ ul {
   margin-right: auto;
 }
 
-.gifts__category {
+/* Espaço só ENTRE categorias — a primeira encosta no padding da
+   seção, sem sobra de espaço extra no topo da página. */
+.gifts__category + .gifts__category {
   margin-top: 72px;
 }
 
