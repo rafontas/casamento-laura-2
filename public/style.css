@@ -359,6 +359,25 @@ ul {
 }
 
 /* =========================================================
+   PRESENTES (página própria)
+   ========================================================= */
+
+.gifts {
+  min-height: calc(100vh - var(--header-height));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 100px 32px;
+  background: var(--color-bg-soft);
+}
+
+.gifts .rule {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* =========================================================
    RSVP
    ========================================================= */
 
@@ -535,12 +554,18 @@ body.no-scroll {
     border-bottom: 1px solid var(--color-border);
     transform: translateY(-110%);
     opacity: 0;
+    /* Enquanto fechado, o menu fica "escondido" só visualmente (opacity),
+       mas continua ocupando espaço acima da tela e pode encostar no
+       cabeçalho, tampando o toque no botão do hambúrguer. pointer-events
+       tira ele da jogada até ser aberto de verdade. */
+    pointer-events: none;
     transition: transform 0.25s ease, opacity 0.25s ease;
   }
 
   .nav.is-open {
     transform: translateY(0);
     opacity: 1;
+    pointer-events: auto;
   }
 
   .nav__link {
