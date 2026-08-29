@@ -439,6 +439,8 @@ ul {
   padding: 0;
   font: inherit;
   cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
   transition: background 0.2s ease, color 0.2s ease;
 }
 
@@ -472,13 +474,18 @@ body.no-scroll {
   justify-content: center;
   padding: 24px;
   opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.35s ease, visibility 0.35s ease;
+  transition: opacity 0.35s ease;
+}
+
+/* Garante que o atributo nativo "hidden" sempre vença, mesmo com
+   o display:flex definido acima (sem isso, alguns navegadores
+   mostrariam o overlay mesmo escondido). */
+.easter-egg[hidden] {
+  display: none;
 }
 
 .easter-egg.is-active {
   opacity: 1;
-  visibility: visible;
 }
 
 .easter-egg__backdrop {
@@ -488,6 +495,8 @@ body.no-scroll {
   border: none;
   padding: 0;
   cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
 }
 
 .easter-egg__content {

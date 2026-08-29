@@ -75,26 +75,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (avengersBtn && avengersOverlay && avengersAudio) {
     const isOpen = () => avengersOverlay.classList.contains('is-active');
+    let hideTimer = null;
 
     const openEasterEgg = () => {
+      clearTimeout(hideTimer);
+      avengersOverlay.hidden = false;
+      // Força o navegador a "perceber" o hidden=false antes de
+      // adicionar a classe, para a transição de opacidade funcionar.
+      void avengersOverlay.offsetWidth;
       avengersOverlay.classList.add('is-active');
-      avengersOverlay.setAttribute('aria-hidden', 'false');
       avengersBtn.setAttribute('aria-pressed', 'true');
       document.body.classList.add('no-scroll');
       avengersAudio.currentTime = 0;
-      avengersAudio.play().catch(() => {
+      avengersAudio.play().catch((err) => {
         // Alguns navegadores bloqueiam autoplay; como o clique já é
         // uma interação do usuário, isso raramente deve acontecer.
+        console.warn('Não foi possível tocar a música do easter egg:', err);
       });
     };
 
     const closeEasterEgg = () => {
       avengersOverlay.classList.remove('is-active');
-      avengersOverlay.setAttribute('aria-hidden', 'true');
       avengersBtn.setAttribute('aria-pressed', 'false');
       document.body.classList.remove('no-scroll');
       avengersAudio.pause();
       avengersAudio.currentTime = 0;
+      // Espera a transição de saída terminar antes de esconder de fato.
+      hideTimer = setTimeout(() => {
+        avengersOverlay.hidden = true;
+      }, 350);
     };
 
     avengersBtn.addEventListener('click', () => {
