@@ -137,13 +137,26 @@
         <a href="#" class="footer__icon" aria-label="E-mail">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
         </a>
-        <a href="#" class="footer__icon" aria-label="Avengers">
-          <img width="20" height="20" src="assets/images/avengers.svg" alt="Avengers">
-        </a>
+        <button type="button" class="footer__icon" id="avengersEgg" aria-label="Avengers" aria-pressed="false">
+          <img width="20" height="20" src="assets/images/easter-eggs/avengers.svg" alt="Avengers">
+        </button>
       </div>
       <p class="footer__names">Laura &amp; João Vitor · 19.06.2027</p>
     </div>
   </footer>
+
+  <!-- EASTER EGG: AVENGERS -->
+  <div class="easter-egg" id="avengersOverlay" aria-hidden="true">
+    <button type="button" class="easter-egg__backdrop" aria-label="Fechar"></button>
+    <figure class="easter-egg__content">
+      <img
+        src="assets/images/easter-eggs/jota-mais-capitao-america.jpeg"
+        alt="João Vitor como Capitão América"
+        class="easter-egg__image"
+      >
+    </figure>
+  </div>
+  <audio id="avengersAudio" src="assets/musics/avengers_assemble_cap.mp3" preload="none"></audio>
 
   <script src="script.js"></script>
 </body>

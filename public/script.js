@@ -65,4 +65,54 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // ---- Easter egg: ícone dos Avengers ----
+  // Ao clicar, mostra a foto, toca a música e escurece o fundo.
+  // Clicando de novo (no ícone, no fundo escurecido ou apertando
+  // Esc), volta tudo ao normal.
+  const avengersBtn = document.getElementById('avengersEgg');
+  const avengersOverlay = document.getElementById('avengersOverlay');
+  const avengersAudio = document.getElementById('avengersAudio');
+
+  if (avengersBtn && avengersOverlay && avengersAudio) {
+    const isOpen = () => avengersOverlay.classList.contains('is-active');
+
+    const openEasterEgg = () => {
+      avengersOverlay.classList.add('is-active');
+      avengersOverlay.setAttribute('aria-hidden', 'false');
+      avengersBtn.setAttribute('aria-pressed', 'true');
+      document.body.classList.add('no-scroll');
+      avengersAudio.currentTime = 0;
+      avengersAudio.play().catch(() => {
+        // Alguns navegadores bloqueiam autoplay; como o clique já é
+        // uma interação do usuário, isso raramente deve acontecer.
+      });
+    };
+
+    const closeEasterEgg = () => {
+      avengersOverlay.classList.remove('is-active');
+      avengersOverlay.setAttribute('aria-hidden', 'true');
+      avengersBtn.setAttribute('aria-pressed', 'false');
+      document.body.classList.remove('no-scroll');
+      avengersAudio.pause();
+      avengersAudio.currentTime = 0;
+    };
+
+    avengersBtn.addEventListener('click', () => {
+      if (isOpen()) {
+        closeEasterEgg();
+      } else {
+        openEasterEgg();
+      }
+    });
+
+    avengersOverlay.querySelector('.easter-egg__backdrop').addEventListener('click', closeEasterEgg);
+    avengersOverlay.querySelector('.easter-egg__content').addEventListener('click', closeEasterEgg);
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && isOpen()) {
+        closeEasterEgg();
+      }
+    });
+  }
+
 });

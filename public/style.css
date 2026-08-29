@@ -435,6 +435,10 @@ ul {
   border: 1px solid var(--color-border);
   border-radius: 50%;
   color: var(--color-text);
+  background: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
   transition: background 0.2s ease, color 0.2s ease;
 }
 
@@ -449,6 +453,61 @@ ul {
   letter-spacing: 1.5px;
   text-transform: uppercase;
   color: var(--color-text-soft);
+}
+
+/* =========================================================
+   EASTER EGG — AVENGERS
+   ========================================================= */
+
+body.no-scroll {
+  overflow: hidden;
+}
+
+.easter-egg {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.35s ease, visibility 0.35s ease;
+}
+
+.easter-egg.is-active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.easter-egg__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.9);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.easter-egg__content {
+  position: relative;
+  z-index: 1;
+  max-width: min(90vw, 480px);
+  margin: 0;
+  cursor: pointer;
+  transform: scale(0.94);
+  transition: transform 0.35s ease;
+}
+
+.easter-egg.is-active .easter-egg__content {
+  transform: scale(1);
+}
+
+.easter-egg__image {
+  width: 100%;
+  border-radius: var(--radius);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
 }
 
 /* =========================================================
