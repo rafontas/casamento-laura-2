@@ -261,10 +261,26 @@ ul {
    ========================================================= */
 
 .welcome {
+  position: relative;
+  overflow: hidden;
   padding: 100px 0;
 }
 
+.welcome__leaf {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: auto;
+  max-width: clamp(90px, 11vw, 160px);
+  z-index: 0;
+  pointer-events: none;
+  user-select: none;
+}
+
 .welcome__grid {
+  position: relative;
+  z-index: 1;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 64px;
@@ -689,6 +705,11 @@ body.no-scroll {
 
   .welcome__grid {
     grid-template-columns: 1fr;
+  }
+
+  .welcome__leaf {
+    max-width: 70px;
+    opacity: 0.6;
   }
 
   .rsvp {
