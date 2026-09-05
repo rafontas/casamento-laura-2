@@ -99,6 +99,93 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // ---- Música de fundo ----
+  // Toca automaticamente ao entrar em qualquer página do site.
+  // Navegadores bloqueiam áudio com som sem interação do usuário,
+  // então se o autoplay falhar, a música começa no primeiro clique/
+  // toque/tecla. O botão flutuante permite pausar e retomar, e a
+  // escolha do usuário (ligado/desligado) é lembrada entre as páginas.
+  const bgMusic = document.getElementById('bgMusic');
+  const musicToggle = document.getElementById('musicToggle');
+
+  if (bgMusic && musicToggle) {
+    const iconOn = musicToggle.querySelector('.music-toggle__icon--on');
+    const iconOff = musicToggle.querySelector('.music-toggle__icon--off');
+    const STORAGE_KEY = 'bgMusicEnabled';
+    let started = false;
+
+    const setIcon = (playing) => {
+      // Usamos setAttribute/removeAttribute em vez da propriedade
+      // .hidden: em elementos <svg>, alguns navegadores atualizam a
+      // propriedade mas não refletem no atributo de fato, deixando o
+      // ícone errado escondido/visível.
+      if (playing) {
+        iconOn.removeAttribute('hidden');
+        iconOff.setAttribute('hidden', '');
+      } else {
+        iconOn.setAttribute('hidden', '');
+        iconOff.removeAttribute('hidden');
+      }
+      musicToggle.setAttribute('aria-pressed', String(playing));
+      musicToggle.setAttribute('aria-label', playing ? 'Pausar música' : 'Tocar música');
+    };
+
+    // O ícone sempre reflete o estado real do <audio> (eventos nativos
+    // play/pause), em vez de ser setado manualmente em cada chamada de
+    // play() — assim não há inconsistência quando duas tentativas de
+    // play() se sobrepõem (autoplay + clique, por exemplo).
+    bgMusic.addEventListener('play', () => setIcon(true));
+    bgMusic.addEventListener('pause', () => setIcon(false));
+
+    const tryAutoplay = () => {
+      if (started) return;
+      bgMusic
+        .play()
+        .then(() => {
+          started = true;
+        })
+        .catch(() => {
+          // Autoplay bloqueado pelo navegador — espera a primeira interação.
+        });
+    };
+
+    const userDisabled = localStorage.getItem(STORAGE_KEY) === 'off';
+
+    if (userDisabled) {
+      setIcon(false);
+    } else {
+      // O padrão é tocar: o ícone já nasce mostrando "ligado" no HTML.
+      // Se o navegador bloquear o autoplay, o ícone continua assim
+      // (representando o estado padrão) até a música realmente
+      // começar no primeiro clique/toque/tecla.
+      tryAutoplay();
+
+      const onFirstInteraction = () => {
+        if (!started) tryAutoplay();
+      };
+      document.addEventListener('click', onFirstInteraction, { once: true });
+      document.addEventListener('keydown', onFirstInteraction, { once: true });
+      document.addEventListener('touchstart', onFirstInteraction, { once: true });
+    }
+
+    musicToggle.addEventListener('click', () => {
+      if (bgMusic.paused) {
+        bgMusic
+          .play()
+          .then(() => {
+            started = true;
+            localStorage.setItem(STORAGE_KEY, 'on');
+          })
+          .catch((err) => {
+            console.warn('Não foi possível tocar a música de fundo:', err);
+          });
+      } else {
+        bgMusic.pause();
+        localStorage.setItem(STORAGE_KEY, 'off');
+      }
+    });
+  }
+
   // ---- Easter egg: ícone dos Avengers ----
   // Ao clicar, mostra a foto, toca a música e escurece o fundo.
   // Clicando de novo (no ícone, no fundo escurecido ou apertando

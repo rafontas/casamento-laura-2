@@ -89,6 +89,21 @@
   </div>
   <audio id="avengersAudio" src="assets/musics/avengers_assemble_cap.mp3?v=4" preload="auto"></audio>
 
+  <!-- MÚSICA DE FUNDO -->
+  <audio id="bgMusic" src="assets/musics/maria_gadu_amor_de_indio.mp3?v=4" loop preload="auto"></audio>
+  <button type="button" class="music-toggle" id="musicToggle" aria-label="Pausar música" aria-pressed="true">
+    <svg class="music-toggle__icon music-toggle__icon--on" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+      <path d="M4 9v6h4l5 4V5L8 9H4z"/>
+      <path d="M16.5 8.5a5 5 0 0 1 0 7"/>
+      <path d="M19 6a9 9 0 0 1 0 12"/>
+    </svg>
+    <svg class="music-toggle__icon music-toggle__icon--off" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true" hidden>
+      <path d="M4 9v6h4l5 4V5L8 9H4z"/>
+      <path d="M15.5 9.5l5 5"/>
+      <path d="M20.5 9.5l-5 5"/>
+    </svg>
+  </button>
+
   <script src="script.js?v=4"></script>
 </body>
 </html>
