@@ -367,9 +367,23 @@ ul {
 }
 
 .info-card {
+  display: block;
   padding: 32px 28px;
   border-right: 1px solid var(--color-border);
   border-bottom: 1px solid var(--color-border);
+}
+
+.info-card--link {
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.info-card--link:hover {
+  background: var(--color-bg-card);
+}
+
+.info-card--link:hover .info-card__title {
+  color: var(--color-accent);
 }
 
 .info-card__icon {
