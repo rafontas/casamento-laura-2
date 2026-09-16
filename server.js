@@ -1,12 +1,21 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 const DATA_DIR = path.join(__dirname, 'data');
 const MUSIC_FILE = path.join(DATA_DIR, 'musicas.json');
+
+// Arquivo com a senha do painel administrativo (fora do git, veja .gitignore)
+const ADMIN_CONFIG_FILE = path.join(__dirname, 'admin-config.json');
+
+// A cada IP, guarda a hora da última tentativa de validação de senha,
+// para permitir no máximo 1 tentativa a cada 10 segundos (anti-força-bruta).
+const ADMIN_RATE_LIMIT_MS = 10 * 1000;
+const lastAdminAttempt = new Map();
 
 // ---- Armazenamento simples em arquivo JSON para as sugestões de música ----
 
@@ -38,6 +47,40 @@ function writeMusicas(musicas) {
 
 function gerarId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+}
+
+// ---- Painel administrativo (admin-musicas.html) ----
+
+function getAdminPassword() {
+  try {
+    const raw = fs.readFileSync(ADMIN_CONFIG_FILE, 'utf-8');
+    const config = JSON.parse(raw);
+    return (config && config.senha) || null;
+  } catch (err) {
+    return null;
+  }
+}
+
+function getClientIp(req) {
+  const forwarded = req.headers['x-forwarded-for'];
+  if (forwarded) {
+    return forwarded.split(',')[0].trim();
+  }
+  return req.socket && req.socket.remoteAddress;
+}
+
+// Compara duas strings em tempo constante, para evitar vazar informação
+// sobre a senha correta através do tempo de resposta.
+function senhasIguais(a, b) {
+  const bufA = Buffer.from(String(a));
+  const bufB = Buffer.from(String(b));
+  if (bufA.length !== bufB.length) {
+    // Ainda assim compara contra um buffer do mesmo tamanho, para não
+    // retornar instantaneamente quando o tamanho já denuncia a resposta.
+    crypto.timingSafeEqual(bufA, bufA);
+    return false;
+  }
+  return crypto.timingSafeEqual(bufA, bufB);
 }
 
 app.use(express.json());
@@ -96,6 +139,43 @@ function votar(req, res, campo) {
 
 app.post('/api/musicas/:id/upvote', (req, res) => votar(req, res, 'upvotes'));
 app.post('/api/musicas/:id/downvote', (req, res) => votar(req, res, 'downvotes'));
+
+// Valida a senha do painel administrativo e, se correta, devolve a lista
+// completa de músicas (ordenada por saldo de votos). No máximo 1 tentativa
+// a cada 10 segundos por IP, para dificultar ataques de força bruta.
+app.post('/api/admin/musicas', (req, res) => {
+  const ip = getClientIp(req) || 'desconhecido';
+  const agora = Date.now();
+  const ultima = lastAdminAttempt.get(ip) || 0;
+  const decorrido = agora - ultima;
+
+  if (decorrido < ADMIN_RATE_LIMIT_MS) {
+    const espera = Math.ceil((ADMIN_RATE_LIMIT_MS - decorrido) / 1000);
+    res.set('Retry-After', String(espera));
+    return res.status(429).json({ erro: `Aguarde ${espera}s antes de tentar novamente.` });
+  }
+  lastAdminAttempt.set(ip, agora);
+
+  const senhaConfigurada = getAdminPassword();
+  if (!senhaConfigurada) {
+    return res.status(500).json({ erro: 'Painel administrativo não configurado no servidor.' });
+  }
+
+  const senhaEnviada = (req.body && req.body.senha) || '';
+  if (!senhaEnviada || !senhasIguais(senhaEnviada, senhaConfigurada)) {
+    return res.status(401).json({ erro: 'Senha incorreta.' });
+  }
+
+  const musicas = readMusicas()
+    .slice()
+    .sort((a, b) => {
+      const scoreA = (a.upvotes || 0) - (a.downvotes || 0);
+      const scoreB = (b.upvotes || 0) - (b.downvotes || 0);
+      if (scoreB !== scoreA) return scoreB - scoreA;
+      return new Date(a.criadoEm) - new Date(b.criadoEm);
+    });
+  res.json(musicas);
+});
 
 // Rota para a raiz (opcional, pois o static já resolve)
 app.get('/', (req, res) => {

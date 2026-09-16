@@ -3,3 +3,6 @@ node_modules/
 # Dados de produção (sugestões de música dos convidados) — não versionar,
 # para não sobrescrever o que já foi salvo no servidor a cada deploy.
 data/musicas.json
+
+# Senha do painel administrativo — nunca deve ir para o repositório.
+admin-config.json

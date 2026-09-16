@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Painel · Sugestões de Música</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css?v=6">
+
+  <style>
+    /* ---- Estilos específicos do painel administrativo ---- */
+    .admin-panel {
+      padding: 100px 0;
+      background: var(--color-bg-card);
+    }
+
+    .state-box {
+      background: var(--color-bg-soft);
+      border-radius: var(--radius);
+      padding: 32px;
+      text-align: center;
+      color: var(--color-text-soft);
+      font-size: 0.95rem;
+    }
+
+    .state-box.is-error {
+      color: var(--color-burgundy);
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .toolbar__count {
+      color: var(--color-text-soft);
+      font-size: 0.9rem;
+    }
+
+    .admin-panel table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--color-bg-soft);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    }
+
+    .admin-panel thead th {
+      text-align: left;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--color-text-soft);
+      background: var(--color-bg-card);
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .admin-panel tbody td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--color-border);
+      font-size: 0.92rem;
+      vertical-align: top;
+    }
+
+    .admin-panel tbody tr:last-child td { border-bottom: none; }
+
+    .col-musica { font-weight: 600; }
+    .col-autor { color: var(--color-text-soft); }
+    .col-num { text-align: center; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .col-placar { font-weight: 700; }
+    .col-data { color: var(--color-text-soft); font-size: 0.82rem; white-space: nowrap; }
+
+    @media (max-width: 720px) {
+      .col-data { display: none; }
+      .admin-panel thead th:nth-child(6) { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER / NAV -->
+  <header class="header" id="header">
+    <div class="container header__inner">
+      <a href="index.html#inicio" class="logo" aria-label="Laura e João Vitor">
+        <span class="logo__mark">J&amp;L</span>
+      </a>
+
+      <nav class="nav" id="nav">
+        <a href="index.html#inicio" class="nav__link">Início</a>
+        <a href="historia.html" class="nav__link">Nossa História</a>
+        <a href="index.html#detalhes" class="nav__link">Cerimônia &amp; Recepção</a>
+        <a href="musica.html" class="nav__link">Sugestão de Música</a>
+        <a href="presentes.html" class="nav__link">Presentes</a>
+        <a href="index.html#rsvp" class="nav__link">RSVP</a>
+      </nav>
+
+      <button class="menu-toggle" id="menuToggle" aria-label="Abrir menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- PAINEL ADMINISTRATIVO -->
+    <section class="admin-panel" id="adminPanel">
+      <div class="container">
+        <div class="story__header">
+          <p class="eyebrow">Painel interno</p>
+          <h2 class="section-title">Sugestões de Música</h2>
+          <div class="rule" aria-hidden="true"></div>
+          <p class="story__intro">
+            Esta página não é a página do convidado — é só para acompanhar as sugestões.
+          </p>
+        </div>
+
+        <div id="content">
+          <div class="state-box" id="stateBox">Carregando…</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer__inner">
+      <div class="footer__social">
+        <a href="#" class="footer__icon" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>
+        </a>
+        <a href="#" class="footer__icon" aria-label="WhatsApp">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 12a8 8 0 1 1-3.7-6.7L20 4l-1 3.6A8 8 0 0 1 20 12z"/><path d="M8.5 9.5c0 3.5 2.5 6 6 6l1-2-2.5-1-1 1c-1-.6-1.9-1.5-2.5-2.5l1-1-1-2.5-2-.0z"/></svg>
+        </a>
+        <a href="#" class="footer__icon" aria-label="E-mail">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+        </a>
+        <button type="button" class="footer__icon" id="avengersEgg" aria-label="Avengers" aria-pressed="false">
+          <img width="20" height="20" src="assets/images/easter-eggs/avengers.svg?v=4" alt="Avengers">
+        </button>
+      </div>
+      <p class="footer__names">Laura &amp; João Vitor · 19.06.2027</p>
+    </div>
+  </footer>
+
+  <!-- EASTER EGG: AVENGERS -->
+  <div class="easter-egg" id="avengersOverlay" hidden>
+    <button type="button" class="easter-egg__backdrop" aria-label="Fechar"></button>
+    <figure class="easter-egg__content">
+      <img
+        src="assets/images/easter-eggs/jota-mais-capitao-america.jpeg?v=4"
+        alt="João Vitor como Capitão América"
+        class="easter-egg__image"
+      >
+    </figure>
+  </div>
+  <audio id="avengersAudio" src="assets/musics/avengers_assemble_cap.mp3?v=4" preload="auto"></audio>
+
+  <!-- MÚSICA DE FUNDO -->
+  <audio id="bgMusic" src="assets/musics/maria_gadu_amor_de_indio.mp3?v=4" loop preload="auto"></audio>
+  <button type="button" class="music-toggle" id="musicToggle" aria-label="Pausar música" aria-pressed="true">
+    <svg class="music-toggle__icon music-toggle__icon--on" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+      <path d="M4 9v6h4l5 4V5L8 9H4z"/>
+      <path d="M16.5 8.5a5 5 0 0 1 0 7"/>
+      <path d="M19 6a9 9 0 0 1 0 12"/>
+    </svg>
+    <svg class="music-toggle__icon music-toggle__icon--off" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true" hidden>
+      <path d="M4 9v6h4l5 4V5L8 9H4z"/>
+      <path d="M15.5 9.5l5 5"/>
+      <path d="M20.5 9.5l-5 5"/>
+    </svg>
+  </button>
+
+  <script>
+    (function () {
+      const content = document.getElementById('content');
+      const params = new URLSearchParams(window.location.search);
+      const senha = params.get('senha');
+
+      function showState(message, isError) {
+        content.innerHTML = `<div class="state-box${isError ? ' is-error' : ''}">${message}</div>`;
+      }
+
+      function escapeHtml(str) {
+        return String(str).replace(/[&<>"']/g, (ch) => ({
+          '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+        }[ch]));
+      }
+
+      function formatarData(iso) {
+        try {
+          return new Date(iso).toLocaleString('pt-BR');
+        } catch (err) {
+          return iso;
+        }
+      }
+
+      function paraCsv(musicas) {
+        const linhas = [['Música', 'Autor', 'Upvotes', 'Downvotes', 'Placar', 'Criado em']];
+        musicas.forEach((m) => {
+          linhas.push([
+            m.musica,
+            m.autor,
+            m.upvotes || 0,
+            m.downvotes || 0,
+            (m.upvotes || 0) - (m.downvotes || 0),
+            m.criadoEm,
+          ]);
+        });
+        return linhas
+          .map((linha) => linha.map((campo) => `"${String(campo).replace(/"/g, '""')}"`).join(','))
+          .join('\r\n');
+      }
+
+      function baixarCsv(musicas) {
+        const csv = '﻿' + paraCsv(musicas);
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'sugestoes-musica.csv';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      }
+
+      function renderTabela(musicas) {
+        if (!musicas.length) {
+          content.innerHTML = `
+            <div class="toolbar">
+              <span class="toolbar__count">Nenhuma sugestão ainda.</span>
+            </div>
+          `;
+          return;
+        }
+
+        const linhas = musicas
+          .map((m) => `
+            <tr>
+              <td class="col-musica">${escapeHtml(m.musica)}</td>
+              <td class="col-autor">${escapeHtml(m.autor)}</td>
+              <td class="col-num">${m.upvotes || 0}</td>
+              <td class="col-num">${m.downvotes || 0}</td>
+              <td class="col-num col-placar">${(m.upvotes || 0) - (m.downvotes || 0)}</td>
+              <td class="col-data">${formatarData(m.criadoEm)}</td>
+            </tr>
+          `)
+          .join('');
+
+        content.innerHTML = `
+          <div class="toolbar">
+            <span class="toolbar__count">${musicas.length} sugest${musicas.length === 1 ? 'ão' : 'ões'}</span>
+            <button type="button" class="btn btn--primary" id="exportBtn">Exportar CSV</button>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Música</th>
+                <th>Autor</th>
+                <th>👍</th>
+                <th>👎</th>
+                <th>Placar</th>
+                <th>Criado em</th>
+              </tr>
+            </thead>
+            <tbody>${linhas}</tbody>
+          </table>
+        `;
+
+        document.getElementById('exportBtn').addEventListener('click', () => baixarCsv(musicas));
+      }
+
+      if (!senha) {
+        showState('Acesso restrito. Informe a senha na URL (?senha=...).', true);
+        return;
+      }
+
+      fetch('/api/admin/musicas', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ senha }),
+      })
+        .then(async (res) => {
+          const data = await res.json().catch(() => ({}));
+          if (res.status === 200) {
+            renderTabela(Array.isArray(data) ? data : []);
+            return;
+          }
+          if (res.status === 401) {
+            showState('Senha incorreta.', true);
+            return;
+          }
+          if (res.status === 429) {
+            showState(data.erro || 'Muitas tentativas. Aguarde alguns segundos e recarregue a página.', true);
+            return;
+          }
+          showState(data.erro || 'Não foi possível carregar as sugestões agora.', true);
+        })
+        .catch(() => {
+          showState('Não foi possível conectar ao servidor.', true);
+        });
+    })();
+  </script>
+
+  <script src="script.js?v=6"></script>
+</body>
+</html>
