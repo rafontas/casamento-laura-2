@@ -649,6 +649,31 @@ ul {
   background: var(--color-bg-card);
 }
 
+.music-form__nome {
+  display: block;
+  width: 100%;
+  padding: 13px 16px;
+  margin-bottom: 20px;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--color-text);
+  background: var(--color-bg-soft);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.music-form__nome::placeholder {
+  color: var(--color-text-soft);
+  opacity: 0.8;
+}
+
+.music-form__nome:focus {
+  outline: none;
+  border-color: var(--color-burgundy);
+  background: var(--color-bg-card);
+}
+
 .music-form .btn {
   width: 100%;
   justify-content: center;
@@ -708,6 +733,15 @@ ul {
 .music-item__author {
   font-size: 0.85rem;
   color: var(--color-text-soft);
+  overflow-wrap: break-word;
+}
+
+.music-item__suggested-by {
+  font-size: 0.78rem;
+  font-style: italic;
+  color: var(--color-text-soft);
+  opacity: 0.85;
+  margin-top: 4px;
   overflow-wrap: break-word;
 }
 

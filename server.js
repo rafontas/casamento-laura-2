@@ -107,6 +107,7 @@ app.get('/api/musicas', (req, res) => {
 app.post('/api/musicas', (req, res) => {
   const musica = ((req.body && req.body.musica) || '').toString().trim().slice(0, 120);
   const autor = ((req.body && req.body.autor) || '').toString().trim().slice(0, 120);
+  const nome = ((req.body && req.body.nome) || '').toString().trim().slice(0, 80);
 
   if (!musica || !autor) {
     return res.status(400).json({ erro: 'Informe a música e o autor.' });
@@ -117,6 +118,7 @@ app.post('/api/musicas', (req, res) => {
     id: gerarId(),
     musica,
     autor,
+    nome,
     upvotes: 0,
     downvotes: 0,
     criadoEm: new Date().toISOString(),

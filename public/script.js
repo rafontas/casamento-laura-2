@@ -286,6 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const musicForm = document.getElementById('musicForm');
     const musicaInput = document.getElementById('musicaInput');
     const autorInput = document.getElementById('autorInput');
+    const nomeInput = document.getElementById('nomeInput');
     const musicFeedback = document.getElementById('musicFormFeedback');
     const VOTES_KEY = 'musicVotes';
 
@@ -338,6 +339,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="music-item__info">
             <h3 class="music-item__title">${escapeHtml(item.musica)}</h3>
             <p class="music-item__author">${escapeHtml(item.autor)}</p>
+            ${item.nome ? `<p class="music-item__suggested-by">Sugerido por ${escapeHtml(item.nome)}</p>` : ''}
           </div>
           <div class="music-item__votes">
             <button type="button" class="vote-btn vote-btn--up${votedTipo === 'up' ? ' is-voted' : ''}" data-action="up" ${votedTipo ? 'disabled' : ''} aria-label="Votar a favor de ${escapeHtml(item.musica)}">
@@ -369,6 +371,7 @@ document.addEventListener('DOMContentLoaded', () => {
         event.preventDefault();
         const musica = musicaInput.value.trim();
         const autor = autorInput.value.trim();
+        const nome = nomeInput ? nomeInput.value.trim() : '';
 
         if (!musica || !autor) {
           musicFeedback.textContent = 'Preencha o nome da música e o autor.';
@@ -382,7 +385,7 @@ document.addEventListener('DOMContentLoaded', () => {
         fetch('/api/musicas', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ musica, autor }),
+          body: JSON.stringify({ musica, autor, nome }),
         })
           .then((res) => {
             if (!res.ok) throw new Error('Falha ao salvar');
@@ -391,6 +394,7 @@ document.addEventListener('DOMContentLoaded', () => {
           .then(() => {
             musicaInput.value = '';
             autorInput.value = '';
+            if (nomeInput) nomeInput.value = '';
             musicFeedback.textContent = 'Música adicionada, obrigado pela sugestão!';
             musicFeedback.classList.remove('is-error');
             loadMusicList();

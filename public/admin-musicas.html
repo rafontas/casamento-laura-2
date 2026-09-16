@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="style.css?v=6">
+  <link rel="stylesheet" href="style.css?v=7">
 
   <style>
     /* ---- Estilos específicos do painel administrativo ---- */
@@ -79,11 +79,14 @@
     .col-autor { color: var(--color-text-soft); }
     .col-num { text-align: center; font-variant-numeric: tabular-nums; white-space: nowrap; }
     .col-placar { font-weight: 700; }
+    .col-sugerido { color: var(--color-text-soft); font-style: italic; }
     .col-data { color: var(--color-text-soft); font-size: 0.82rem; white-space: nowrap; }
 
     @media (max-width: 720px) {
+      .col-sugerido { display: none; }
       .col-data { display: none; }
-      .admin-panel thead th:nth-child(6) { display: none; }
+      .admin-panel thead th:nth-child(3) { display: none; }
+      .admin-panel thead th:nth-child(7) { display: none; }
     }
   </style>
 </head>
@@ -207,11 +210,12 @@
       }
 
       function paraCsv(musicas) {
-        const linhas = [['Música', 'Autor', 'Upvotes', 'Downvotes', 'Placar', 'Criado em']];
+        const linhas = [['Música', 'Autor', 'Sugerido por', 'Upvotes', 'Downvotes', 'Placar', 'Criado em']];
         musicas.forEach((m) => {
           linhas.push([
             m.musica,
             m.autor,
+            m.nome || '',
             m.upvotes || 0,
             m.downvotes || 0,
             (m.upvotes || 0) - (m.downvotes || 0),
@@ -251,6 +255,7 @@
             <tr>
               <td class="col-musica">${escapeHtml(m.musica)}</td>
               <td class="col-autor">${escapeHtml(m.autor)}</td>
+              <td class="col-sugerido">${m.nome ? escapeHtml(m.nome) : '—'}</td>
               <td class="col-num">${m.upvotes || 0}</td>
               <td class="col-num">${m.downvotes || 0}</td>
               <td class="col-num col-placar">${(m.upvotes || 0) - (m.downvotes || 0)}</td>
@@ -269,6 +274,7 @@
               <tr>
                 <th>Música</th>
                 <th>Autor</th>
+                <th>Sugerido por</th>
                 <th>👍</th>
                 <th>👎</th>
                 <th>Placar</th>
@@ -314,6 +320,6 @@
     })();
   </script>
 
-  <script src="script.js?v=6"></script>
+  <script src="script.js?v=7"></script>
 </body>
 </html>
