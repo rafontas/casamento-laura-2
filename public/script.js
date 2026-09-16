@@ -71,12 +71,19 @@ document.addEventListener('DOMContentLoaded', () => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             const id = entry.target.getAttribute('id');
-            navLinks.forEach((link) => {
-              link.classList.toggle(
-                'is-active',
-                link.getAttribute('href') === `#${id}`
-              );
-            });
+            // Só mexe no destaque do menu se algum link corresponder a
+            // essa seção (âncora "#id"). Em páginas próprias (como
+            // presentes.html e historia.html), os links do menu apontam
+            // para outras páginas, não para âncoras — nesse caso não há
+            // link correspondente e o destaque fixado no HTML dessa
+            // página é mantido como está.
+            const matchingLink = Array.from(navLinks).find(
+              (link) => link.getAttribute('href') === `#${id}`
+            );
+            if (matchingLink) {
+              navLinks.forEach((link) => link.classList.remove('is-active'));
+              matchingLink.classList.add('is-active');
+            }
           }
         });
       },
