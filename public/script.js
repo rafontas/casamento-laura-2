@@ -279,4 +279,158 @@ document.addEventListener('DOMContentLoaded', () => {
   renderGiftGrid('honeymoonGifts', DEFAULT_HONEYMOON_ITEMS);
   renderGiftGrid('householdGifts', DEFAULT_HOUSEHOLD_ITEMS);
 
+
+  // ---- Sugestão de música (só existe em musica.html) ----
+  const musicList = document.getElementById('musicList');
+  if (musicList) {
+    const musicForm = document.getElementById('musicForm');
+    const musicaInput = document.getElementById('musicaInput');
+    const autorInput = document.getElementById('autorInput');
+    const musicFeedback = document.getElementById('musicFormFeedback');
+    const VOTES_KEY = 'musicVotes';
+
+    const getVotes = () => {
+      try {
+        return JSON.parse(localStorage.getItem(VOTES_KEY)) || {};
+      } catch (err) {
+        return {};
+      }
+    };
+
+    const saveVote = (id, tipo) => {
+      const votes = getVotes();
+      votes[id] = tipo;
+      try {
+        localStorage.setItem(VOTES_KEY, JSON.stringify(votes));
+      } catch (err) {
+        // localStorage indisponível (ex.: modo privado) — o voto ainda
+        // conta no servidor, só não fica travado neste navegador.
+      }
+    };
+
+    const escapeHtml = (str) =>
+      String(str).replace(/[&<>"']/g, (ch) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;',
+      }[ch]));
+
+    const voteIcons = {
+      up: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M12 5l-6 6M12 5l6 6"/></svg>',
+      down: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19V5M12 19l-6-6M12 19l6-6"/></svg>',
+    };
+
+    const renderMusicList = (items) => {
+      if (!items.length) {
+        musicList.innerHTML = '<p class="music-list__empty">Ainda não há sugestões. Que tal ser a primeira pessoa a sugerir uma música?</p>';
+        return;
+      }
+
+      const votes = getVotes();
+
+      musicList.innerHTML = items
+        .map((item) => {
+          const votedTipo = votes[item.id];
+          return `
+        <div class="music-item" data-id="${item.id}">
+          <div class="music-item__info">
+            <h3 class="music-item__title">${escapeHtml(item.musica)}</h3>
+            <p class="music-item__author">${escapeHtml(item.autor)}</p>
+          </div>
+          <div class="music-item__votes">
+            <button type="button" class="vote-btn vote-btn--up${votedTipo === 'up' ? ' is-voted' : ''}" data-action="up" ${votedTipo ? 'disabled' : ''} aria-label="Votar a favor de ${escapeHtml(item.musica)}">
+              ${voteIcons.up}
+              <span class="vote-btn__count">${item.upvotes || 0}</span>
+            </button>
+            <button type="button" class="vote-btn vote-btn--down${votedTipo === 'down' ? ' is-voted' : ''}" data-action="down" ${votedTipo ? 'disabled' : ''} aria-label="Votar contra ${escapeHtml(item.musica)}">
+              ${voteIcons.down}
+              <span class="vote-btn__count">${item.downvotes || 0}</span>
+            </button>
+          </div>
+        </div>
+      `;
+        })
+        .join('');
+    };
+
+    const loadMusicList = () => {
+      fetch('/api/musicas')
+        .then((res) => res.json())
+        .then((items) => renderMusicList(items))
+        .catch(() => {
+          musicList.innerHTML = '<p class="music-list__error">Não foi possível carregar as sugestões agora. Tente recarregar a página.</p>';
+        });
+    };
+
+    if (musicForm) {
+      musicForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const musica = musicaInput.value.trim();
+        const autor = autorInput.value.trim();
+
+        if (!musica || !autor) {
+          musicFeedback.textContent = 'Preencha o nome da música e o autor.';
+          musicFeedback.classList.add('is-error');
+          return;
+        }
+
+        const submitBtn = musicForm.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+
+        fetch('/api/musicas', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ musica, autor }),
+        })
+          .then((res) => {
+            if (!res.ok) throw new Error('Falha ao salvar');
+            return res.json();
+          })
+          .then(() => {
+            musicaInput.value = '';
+            autorInput.value = '';
+            musicFeedback.textContent = 'Música adicionada, obrigado pela sugestão!';
+            musicFeedback.classList.remove('is-error');
+            loadMusicList();
+          })
+          .catch(() => {
+            musicFeedback.textContent = 'Não foi possível adicionar agora. Tente novamente.';
+            musicFeedback.classList.add('is-error');
+          })
+          .finally(() => {
+            submitBtn.disabled = false;
+          });
+      });
+    }
+
+    musicList.addEventListener('click', (event) => {
+      const btn = event.target.closest('.vote-btn');
+      if (!btn || btn.disabled) return;
+
+      const itemEl = btn.closest('.music-item');
+      const id = itemEl.getAttribute('data-id');
+      if (getVotes()[id]) return; // já votou nessa música neste navegador
+
+      const tipo = btn.getAttribute('data-action'); // 'up' | 'down'
+      const rota = tipo === 'up' ? 'upvote' : 'downvote';
+
+      fetch(`/api/musicas/${encodeURIComponent(id)}/${rota}`, { method: 'POST' })
+        .then((res) => {
+          if (!res.ok) throw new Error('Falha ao votar');
+          return res.json();
+        })
+        .then(() => {
+          saveVote(id, tipo);
+          loadMusicList();
+        })
+        .catch(() => {
+          // silencioso — o voto simplesmente não é contabilizado agora
+        });
+    });
+
+    loadMusicList();
+  }
+
 });

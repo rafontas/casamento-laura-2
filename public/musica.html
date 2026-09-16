@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Presentes | Laura &amp; João Vitor</title>
+  <title>Sugestão de Música | Laura &amp; João Vitor</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -24,8 +24,8 @@
         <a href="index.html#inicio" class="nav__link">Início</a>
         <a href="historia.html" class="nav__link">Nossa História</a>
         <a href="index.html#detalhes" class="nav__link">Cerimônia &amp; Recepção</a>
-        <a href="musica.html" class="nav__link">Sugestão de Música</a>
-        <a href="presentes.html" class="nav__link is-active">Presentes</a>
+        <a href="musica.html" class="nav__link is-active">Sugestão de Música</a>
+        <a href="presentes.html" class="nav__link">Presentes</a>
         <a href="index.html#rsvp" class="nav__link">RSVP</a>
       </nav>
 
@@ -37,18 +37,32 @@
 
   <main>
 
-    <!-- PRESENTES -->
-    <section class="gifts">
-
+    <!-- SUGESTÃO DE MÚSICA -->
+    <section class="music-suggestion" id="musica">
       <div class="container">
-        <div class="gifts__category">
-          <h2 class="gifts__category-title">Lua de Mel</h2>
-          <div class="gift-grid" id="honeymoonGifts"></div>
+        <div class="story__header">
+          <p class="eyebrow">Ajude a montar a trilha da festa</p>
+          <h2 class="section-title">Sugestão de Música</h2>
+          <div class="rule" aria-hidden="true"></div>
+          <p class="story__intro">
+            Deixe aqui aquela música que não pode faltar na nossa festa!
+            Você também pode votar nas sugestões de outros convidados.
+          </p>
         </div>
 
-        <div class="gifts__category">
-          <h2 class="gifts__category-title">Casa Nova</h2>
-          <div class="gift-grid" id="householdGifts"></div>
+        <form class="music-form" id="musicForm" novalidate>
+          <div class="music-form__row">
+            <input type="text" id="musicaInput" name="musica" placeholder="Nome da música" maxlength="120" required>
+            <input type="text" id="autorInput" name="autor" placeholder="Autor / banda" maxlength="120" required>
+          </div>
+          <button type="submit" class="btn btn--primary">
+            Adicionar música
+          </button>
+          <p class="music-form__feedback" id="musicFormFeedback" role="status" aria-live="polite"></p>
+        </form>
+
+        <div class="music-list" id="musicList" aria-live="polite">
+          <p class="music-list__empty">Carregando sugestões…</p>
         </div>
       </div>
     </section>
