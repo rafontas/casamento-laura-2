@@ -82,13 +82,30 @@ function gerarId() {
 // ---- Painel administrativo (admin-musicas.html) ----
 
 function getAdminPassword() {
+  let raw;
   try {
-    const raw = fs.readFileSync(ADMIN_CONFIG_FILE, 'utf-8');
-    const config = JSON.parse(raw);
-    return (config && config.senha) || null;
+    raw = fs.readFileSync(ADMIN_CONFIG_FILE, 'utf-8');
   } catch (err) {
+    // Loga o caminho exato que o servidor tentou ler, para facilitar
+    // conferir se o admin-config.json está na pasta certa no deploy.
+    console.error(`[admin] Não encontrei o arquivo de senha em: ${ADMIN_CONFIG_FILE}`, err.message);
     return null;
   }
+
+  let config;
+  try {
+    config = JSON.parse(raw);
+  } catch (err) {
+    console.error('[admin] admin-config.json existe, mas não é um JSON válido:', err.message);
+    return null;
+  }
+
+  if (!config || !config.senha) {
+    console.error('[admin] admin-config.json foi lido, mas não tem a chave "senha" preenchida.');
+    return null;
+  }
+
+  return config.senha;
 }
 
 function getClientIp(req) {
