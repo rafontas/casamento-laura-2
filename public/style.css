@@ -843,7 +843,14 @@ ul {
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 24px;
+  overflow: hidden;
+}
+
+.rsvp__photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .rsvp__image span {
