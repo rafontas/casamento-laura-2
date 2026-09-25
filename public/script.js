@@ -119,7 +119,57 @@ document.addEventListener('DOMContentLoaded', () => {
     const iconOn = musicToggle.querySelector('.music-toggle__icon--on');
     const iconOff = musicToggle.querySelector('.music-toggle__icon--off');
     const STORAGE_KEY = 'bgMusicEnabled';
+    const TIME_KEY = 'bgMusicTime';
     let started = false;
+
+    // ---- Continuidade entre páginas ----
+    // Cada página é um carregamento novo (site multi-página, não SPA),
+    // então o <audio> sempre nasce do zero. Para a música "continuar"
+    // ao navegar, salvamos a posição atual no localStorage e retomamos
+    // dali na página seguinte — não é o mesmo áudio tocando sem
+    // interrupção (isso exigiria uma SPA), mas o efeito para quem ouve
+    // é o de continuidade, sem reiniciar do começo.
+    const restoreTime = () => {
+      const saved = parseFloat(localStorage.getItem(TIME_KEY));
+      if (isNaN(saved) || saved <= 0) return;
+      const apply = () => {
+        try {
+          // Se a música salva for mais longa que o áudio atual (ex.:
+          // trocou o arquivo), volta pro início em vez de travar no fim.
+          bgMusic.currentTime = bgMusic.duration && saved < bgMusic.duration ? saved : 0;
+        } catch (err) {
+          // Alguns navegadores recusam setar currentTime cedo demais — ignora.
+        }
+      };
+      if (bgMusic.readyState >= 1) {
+        apply();
+      } else {
+        bgMusic.addEventListener('loadedmetadata', apply, { once: true });
+      }
+    };
+
+    const saveTime = () => {
+      try {
+        localStorage.setItem(TIME_KEY, String(bgMusic.currentTime));
+      } catch (err) {
+        // localStorage indisponível — só não lembra a posição depois.
+      }
+    };
+
+    restoreTime();
+
+    // Salva a posição a cada ~2s tocando e sempre que a pessoa sai da
+    // página (troca de página, fecha a aba, etc.).
+    let lastSaved = 0;
+    bgMusic.addEventListener('timeupdate', () => {
+      const now = Date.now();
+      if (now - lastSaved > 2000) {
+        lastSaved = now;
+        saveTime();
+      }
+    });
+    window.addEventListener('pagehide', saveTime);
+    window.addEventListener('beforeunload', saveTime);
 
     const setIcon = (playing) => {
       // Usamos setAttribute/removeAttribute em vez da propriedade
