@@ -238,8 +238,14 @@ ul {
   color: var(--color-text-soft);
 }
 
+.welcome__countdown {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  margin-bottom: 56px;
+}
+
 .countdown__title {
-  margin-top: 26px;
   font-family: var(--font-body);
   font-size: 0.72rem;
   font-weight: 500;
@@ -250,6 +256,7 @@ ul {
 
 .hero__countdown {
   display: flex;
+  justify-content: center;
   gap: 22px;
   margin-top: 10px;
 }
