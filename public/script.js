@@ -106,6 +106,42 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // ---- Contador regressivo para o casamento (só existe em index.html) ----
+  const countdownEl = document.getElementById('heroCountdown');
+  if (countdownEl) {
+    const WEDDING_TIME = new Date('2027-06-19T15:30:00-03:00').getTime();
+    const valDias = countdownEl.querySelector('[data-countdown="dias"]');
+    const valHoras = countdownEl.querySelector('[data-countdown="horas"]');
+    const valMinutos = countdownEl.querySelector('[data-countdown="minutos"]');
+    const valSegundos = countdownEl.querySelector('[data-countdown="segundos"]');
+    const pad = (n) => String(n).padStart(2, '0');
+    let intervalId;
+
+    const atualizarContador = () => {
+      const diff = WEDDING_TIME - Date.now();
+
+      if (diff <= 0) {
+        countdownEl.innerHTML = '<p class="countdown__done">Já estamos casados! 🎉</p>';
+        clearInterval(intervalId);
+        return;
+      }
+
+      const segundosTotais = Math.floor(diff / 1000);
+      const dias = Math.floor(segundosTotais / 86400);
+      const horas = Math.floor((segundosTotais % 86400) / 3600);
+      const minutos = Math.floor((segundosTotais % 3600) / 60);
+      const segundos = segundosTotais % 60;
+
+      valDias.textContent = pad(dias);
+      valHoras.textContent = pad(horas);
+      valMinutos.textContent = pad(minutos);
+      valSegundos.textContent = pad(segundos);
+    };
+
+    atualizarContador();
+    intervalId = setInterval(atualizarContador, 1000);
+  }
+
   // ---- Música de fundo ----
   // Toca automaticamente ao entrar em qualquer página do site.
   // Navegadores bloqueiam áudio com som sem interação do usuário,
