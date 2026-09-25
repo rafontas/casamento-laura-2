@@ -82,13 +82,25 @@ function gerarId() {
 // ---- Painel administrativo (admin-musicas.html) ----
 
 function getAdminPassword() {
+  // Em produção (Hostinger), cada novo deploy via Git cria uma pasta nova
+  // para a versão da aplicação — então um arquivo solto (não versionado)
+  // como o admin-config.json não sobrevive de um deploy pro outro. Por
+  // isso a senha é lida primeiro de uma variável de ambiente (ADMIN_SENHA),
+  // que se configura uma única vez no painel da Hostinger e persiste em
+  // todos os deploys futuros.
+  if (process.env.ADMIN_SENHA) {
+    return process.env.ADMIN_SENHA;
+  }
+
+  // Fallback para desenvolvimento local: continua funcionando com o
+  // admin-config.json na pasta do projeto, sem precisar configurar nada.
   let raw;
   try {
     raw = fs.readFileSync(ADMIN_CONFIG_FILE, 'utf-8');
   } catch (err) {
     // Loga o caminho exato que o servidor tentou ler, para facilitar
     // conferir se o admin-config.json está na pasta certa no deploy.
-    console.error(`[admin] Não encontrei o arquivo de senha em: ${ADMIN_CONFIG_FILE}`, err.message);
+    console.error(`[admin] Nem ADMIN_SENHA nem o arquivo ${ADMIN_CONFIG_FILE} foram encontrados.`, err.message);
     return null;
   }
 
