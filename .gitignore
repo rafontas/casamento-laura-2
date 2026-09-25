@@ -4,5 +4,8 @@ node_modules/
 # para não sobrescrever o que já foi salvo no servidor a cada deploy.
 data/musicas.json
 
+# Dados de produção (mensagens deixadas para os noivos) — mesmo motivo acima.
+data/mensagens.json
+
 # Senha do painel administrativo — nunca deve ir para o repositório.
 admin-config.json

@@ -338,6 +338,91 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // ---- Modal: mensagem para os noivos (só existe em index.html) ----
+  const mensagemBtn = document.getElementById('mensagemBtn');
+  const mensagemModal = document.getElementById('mensagemModal');
+
+  if (mensagemBtn && mensagemModal) {
+    const mensagemForm = document.getElementById('mensagemForm');
+    const mensagemNomeInput = document.getElementById('mensagemNomeInput');
+    const mensagemTextoInput = document.getElementById('mensagemTextoInput');
+    const mensagemFeedback = document.getElementById('mensagemFeedback');
+    const mensagemModalClose = document.getElementById('mensagemModalClose');
+
+    const isMensagemModalOpen = () => mensagemModal.classList.contains('is-active');
+    let mensagemHideTimer = null;
+
+    const openMensagemModal = () => {
+      clearTimeout(mensagemHideTimer);
+      mensagemModal.hidden = false;
+      // Força o navegador a "perceber" o hidden=false antes de adicionar
+      // a classe, para a transição funcionar (mesma técnica do easter egg).
+      void mensagemModal.offsetWidth;
+      mensagemModal.classList.add('is-active');
+      document.body.classList.add('no-scroll');
+      mensagemTextoInput.focus();
+    };
+
+    const closeMensagemModal = () => {
+      mensagemModal.classList.remove('is-active');
+      document.body.classList.remove('no-scroll');
+      mensagemHideTimer = setTimeout(() => {
+        mensagemModal.hidden = true;
+      }, 300);
+    };
+
+    mensagemBtn.addEventListener('click', openMensagemModal);
+    mensagemModalClose.addEventListener('click', closeMensagemModal);
+    mensagemModal.querySelector('.msg-modal__backdrop').addEventListener('click', closeMensagemModal);
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && isMensagemModalOpen()) {
+        closeMensagemModal();
+      }
+    });
+
+    mensagemForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const nome = mensagemNomeInput.value.trim();
+      const mensagem = mensagemTextoInput.value.trim();
+
+      if (!mensagem) {
+        mensagemFeedback.textContent = 'Escreva uma mensagem antes de enviar.';
+        mensagemFeedback.classList.add('is-error');
+        return;
+      }
+
+      const submitBtn = mensagemForm.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+
+      fetch('/api/mensagens', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nome, mensagem }),
+      })
+        .then((res) => {
+          if (!res.ok) throw new Error('Falha ao salvar');
+          return res.json();
+        })
+        .then(() => {
+          mensagemFeedback.textContent = 'Mensagem enviada, obrigado por participar!';
+          mensagemFeedback.classList.remove('is-error');
+          mensagemForm.reset();
+          setTimeout(() => {
+            closeMensagemModal();
+            mensagemFeedback.textContent = '';
+          }, 1400);
+        })
+        .catch(() => {
+          mensagemFeedback.textContent = 'Não foi possível enviar agora. Tente novamente.';
+          mensagemFeedback.classList.add('is-error');
+        })
+        .finally(() => {
+          submitBtn.disabled = false;
+        });
+    });
+  }
+
   // ---- Grid de presentes (só existe em presentes.html) ----
   const currencyFormatter = new Intl.NumberFormat('pt-BR', {
     style: 'currency',

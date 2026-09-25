@@ -8,6 +8,7 @@ const PORT = process.env.PORT || 3000;
 
 const DATA_DIR = path.join(__dirname, 'data');
 const MUSIC_FILE = path.join(DATA_DIR, 'musicas.json');
+const MESSAGES_FILE = path.join(DATA_DIR, 'mensagens.json');
 
 // Arquivo com a senha do painel administrativo (fora do git, veja .gitignore)
 const ADMIN_CONFIG_FILE = path.join(__dirname, 'admin-config.json');
@@ -16,6 +17,7 @@ const ADMIN_CONFIG_FILE = path.join(__dirname, 'admin-config.json');
 // para permitir no máximo 1 tentativa a cada 10 segundos (anti-força-bruta).
 const ADMIN_RATE_LIMIT_MS = 10 * 1000;
 const lastAdminAttempt = new Map();
+const lastAdminAttemptMensagens = new Map();
 
 // ---- Armazenamento simples em arquivo JSON para as sugestões de música ----
 
@@ -45,6 +47,34 @@ function writeMusicas(musicas) {
   fs.writeFileSync(MUSIC_FILE, JSON.stringify(musicas, null, 2), 'utf-8');
 }
 
+// ---- Armazenamento simples em arquivo JSON para as mensagens aos noivos ----
+
+function ensureMessagesFile() {
+  if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+  }
+  if (!fs.existsSync(MESSAGES_FILE)) {
+    fs.writeFileSync(MESSAGES_FILE, '[]', 'utf-8');
+  }
+}
+
+function readMensagens() {
+  ensureMessagesFile();
+  try {
+    const raw = fs.readFileSync(MESSAGES_FILE, 'utf-8');
+    const data = JSON.parse(raw);
+    return Array.isArray(data) ? data : [];
+  } catch (err) {
+    console.error('Erro lendo mensagens.json:', err);
+    return [];
+  }
+}
+
+function writeMensagens(mensagens) {
+  ensureMessagesFile();
+  fs.writeFileSync(MESSAGES_FILE, JSON.stringify(mensagens, null, 2), 'utf-8');
+}
+
 function gerarId() {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 }
@@ -71,6 +101,20 @@ function getClientIp(req) {
 
 // Compara duas strings em tempo constante, para evitar vazar informação
 // sobre a senha correta através do tempo de resposta.
+// Verifica o rate-limit de um IP num mapa de tentativas. Retorna null se
+// a tentativa pode seguir (e já marca o horário atual), ou o número de
+// segundos que faltam para poder tentar de novo.
+function checarRateLimit(map, ip) {
+  const agora = Date.now();
+  const ultima = map.get(ip) || 0;
+  const decorrido = agora - ultima;
+  if (decorrido < ADMIN_RATE_LIMIT_MS) {
+    return Math.ceil((ADMIN_RATE_LIMIT_MS - decorrido) / 1000);
+  }
+  map.set(ip, agora);
+  return null;
+}
+
 function senhasIguais(a, b) {
   const bufA = Buffer.from(String(a));
   const bufB = Buffer.from(String(b));
@@ -142,21 +186,39 @@ function votar(req, res, campo) {
 app.post('/api/musicas/:id/upvote', (req, res) => votar(req, res, 'upvotes'));
 app.post('/api/musicas/:id/downvote', (req, res) => votar(req, res, 'downvotes'));
 
+// ---- API: mensagens para os noivos (modal "Deixe uma mensagem") ----
+
+// Recebe uma nova mensagem e a armazena em data/mensagens.json
+app.post('/api/mensagens', (req, res) => {
+  const nome = ((req.body && req.body.nome) || '').toString().trim().slice(0, 80);
+  const mensagem = ((req.body && req.body.mensagem) || '').toString().trim().slice(0, 500);
+
+  if (!mensagem) {
+    return res.status(400).json({ erro: 'Escreva uma mensagem antes de enviar.' });
+  }
+
+  const mensagens = readMensagens();
+  const novaMensagem = {
+    id: gerarId(),
+    nome,
+    mensagem,
+    criadoEm: new Date().toISOString(),
+  };
+  mensagens.push(novaMensagem);
+  writeMensagens(mensagens);
+  res.status(201).json(novaMensagem);
+});
+
 // Valida a senha do painel administrativo e, se correta, devolve a lista
 // completa de músicas (ordenada por saldo de votos). No máximo 1 tentativa
 // a cada 10 segundos por IP, para dificultar ataques de força bruta.
 app.post('/api/admin/musicas', (req, res) => {
   const ip = getClientIp(req) || 'desconhecido';
-  const agora = Date.now();
-  const ultima = lastAdminAttempt.get(ip) || 0;
-  const decorrido = agora - ultima;
-
-  if (decorrido < ADMIN_RATE_LIMIT_MS) {
-    const espera = Math.ceil((ADMIN_RATE_LIMIT_MS - decorrido) / 1000);
+  const espera = checarRateLimit(lastAdminAttempt, ip);
+  if (espera !== null) {
     res.set('Retry-After', String(espera));
     return res.status(429).json({ erro: `Aguarde ${espera}s antes de tentar novamente.` });
   }
-  lastAdminAttempt.set(ip, agora);
 
   const senhaConfigurada = getAdminPassword();
   if (!senhaConfigurada) {
@@ -177,6 +239,34 @@ app.post('/api/admin/musicas', (req, res) => {
       return new Date(a.criadoEm) - new Date(b.criadoEm);
     });
   res.json(musicas);
+});
+
+// Valida a senha do painel administrativo e, se correta, devolve a lista
+// completa de mensagens deixadas para os noivos (mais recentes primeiro).
+// Mesmo limite de 1 tentativa a cada 10 segundos por IP (mapa próprio,
+// independente do painel de músicas).
+app.post('/api/admin/mensagens', (req, res) => {
+  const ip = getClientIp(req) || 'desconhecido';
+  const espera = checarRateLimit(lastAdminAttemptMensagens, ip);
+  if (espera !== null) {
+    res.set('Retry-After', String(espera));
+    return res.status(429).json({ erro: `Aguarde ${espera}s antes de tentar novamente.` });
+  }
+
+  const senhaConfigurada = getAdminPassword();
+  if (!senhaConfigurada) {
+    return res.status(500).json({ erro: 'Painel administrativo não configurado no servidor.' });
+  }
+
+  const senhaEnviada = (req.body && req.body.senha) || '';
+  if (!senhaEnviada || !senhasIguais(senhaEnviada, senhaConfigurada)) {
+    return res.status(401).json({ erro: 'Senha incorreta.' });
+  }
+
+  const mensagens = readMensagens()
+    .slice()
+    .sort((a, b) => new Date(b.criadoEm) - new Date(a.criadoEm));
+  res.json(mensagens);
 });
 
 // Rota para a raiz (opcional, pois o static já resolve)

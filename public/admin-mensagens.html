@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
-  <title>Painel · Sugestões de Música</title>
+  <title>Painel · Mensagens para os Noivos</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -90,18 +90,13 @@
 
     .admin-panel tbody tr:last-child td { border-bottom: none; }
 
-    .col-musica { font-weight: 600; }
-    .col-autor { color: var(--color-text-soft); }
-    .col-num { text-align: center; font-variant-numeric: tabular-nums; white-space: nowrap; }
-    .col-placar { font-weight: 700; }
-    .col-sugerido { color: var(--color-text-soft); font-style: italic; }
+    .col-nome { font-weight: 600; white-space: nowrap; }
+    .col-mensagem { color: var(--color-text); white-space: pre-line; }
     .col-data { color: var(--color-text-soft); font-size: 0.82rem; white-space: nowrap; }
 
     @media (max-width: 720px) {
-      .col-sugerido { display: none; }
       .col-data { display: none; }
       .admin-panel thead th:nth-child(3) { display: none; }
-      .admin-panel thead th:nth-child(7) { display: none; }
     }
   </style>
 </head>
@@ -136,12 +131,12 @@
       <div class="container">
         <div class="story__header">
           <p class="eyebrow">Painel interno</p>
-          <h2 class="section-title">Sugestões de Música</h2>
+          <h2 class="section-title">Mensagens para os Noivos</h2>
           <div class="rule" aria-hidden="true"></div>
           <p class="story__intro">
-            Esta página não é a página do convidado — é só para acompanhar as sugestões.
+            Esta página não é a página do convidado — é só para acompanhar as mensagens deixadas para vocês.
           </p>
-          <a href="admin-mensagens.html" class="admin-panel__switch" id="switchLink">Ver mensagens para os noivos →</a>
+          <a href="admin-musicas.html" class="admin-panel__switch" id="switchLink">Ver sugestões de música →</a>
         </div>
 
         <div id="content">
@@ -206,7 +201,7 @@
 
       const switchLink = document.getElementById('switchLink');
       if (switchLink && senha) {
-        switchLink.href = 'admin-mensagens.html?senha=' + encodeURIComponent(senha);
+        switchLink.href = 'admin-musicas.html?senha=' + encodeURIComponent(senha);
       }
 
       function showState(message, isError) {
@@ -227,16 +222,12 @@
         }
       }
 
-      function paraCsv(musicas) {
-        const linhas = [['Música', 'Autor', 'Sugerido por', 'Upvotes', 'Downvotes', 'Placar', 'Criado em']];
-        musicas.forEach((m) => {
+      function paraCsv(mensagens) {
+        const linhas = [['Nome', 'Mensagem', 'Criado em']];
+        mensagens.forEach((m) => {
           linhas.push([
-            m.musica,
-            m.autor,
             m.nome || '',
-            m.upvotes || 0,
-            m.downvotes || 0,
-            (m.upvotes || 0) - (m.downvotes || 0),
+            m.mensagem,
             m.criadoEm,
           ]);
         });
@@ -245,38 +236,34 @@
           .join('\r\n');
       }
 
-      function baixarCsv(musicas) {
-        const csv = '﻿' + paraCsv(musicas);
+      function baixarCsv(mensagens) {
+        const csv = '﻿' + paraCsv(mensagens);
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'sugestoes-musica.csv';
+        a.download = 'mensagens-noivos.csv';
         document.body.appendChild(a);
         a.click();
         a.remove();
         URL.revokeObjectURL(url);
       }
 
-      function renderTabela(musicas) {
-        if (!musicas.length) {
+      function renderTabela(mensagens) {
+        if (!mensagens.length) {
           content.innerHTML = `
             <div class="toolbar">
-              <span class="toolbar__count">Nenhuma sugestão ainda.</span>
+              <span class="toolbar__count">Nenhuma mensagem ainda.</span>
             </div>
           `;
           return;
         }
 
-        const linhas = musicas
+        const linhas = mensagens
           .map((m) => `
             <tr>
-              <td class="col-musica">${escapeHtml(m.musica)}</td>
-              <td class="col-autor">${escapeHtml(m.autor)}</td>
-              <td class="col-sugerido">${m.nome ? escapeHtml(m.nome) : '—'}</td>
-              <td class="col-num">${m.upvotes || 0}</td>
-              <td class="col-num">${m.downvotes || 0}</td>
-              <td class="col-num col-placar">${(m.upvotes || 0) - (m.downvotes || 0)}</td>
+              <td class="col-nome">${m.nome ? escapeHtml(m.nome) : '—'}</td>
+              <td class="col-mensagem">${escapeHtml(m.mensagem)}</td>
               <td class="col-data">${formatarData(m.criadoEm)}</td>
             </tr>
           `)
@@ -284,18 +271,14 @@
 
         content.innerHTML = `
           <div class="toolbar">
-            <span class="toolbar__count">${musicas.length} sugest${musicas.length === 1 ? 'ão' : 'ões'}</span>
+            <span class="toolbar__count">${mensagens.length} mensage${mensagens.length === 1 ? 'm' : 'ns'}</span>
             <button type="button" class="btn btn--primary" id="exportBtn">Exportar CSV</button>
           </div>
           <table>
             <thead>
               <tr>
-                <th>Música</th>
-                <th>Autor</th>
-                <th>Sugerido por</th>
-                <th>👍</th>
-                <th>👎</th>
-                <th>Placar</th>
+                <th>Nome</th>
+                <th>Mensagem</th>
                 <th>Criado em</th>
               </tr>
             </thead>
@@ -303,7 +286,7 @@
           </table>
         `;
 
-        document.getElementById('exportBtn').addEventListener('click', () => baixarCsv(musicas));
+        document.getElementById('exportBtn').addEventListener('click', () => baixarCsv(mensagens));
       }
 
       if (!senha) {
@@ -311,7 +294,7 @@
         return;
       }
 
-      fetch('/api/admin/musicas', {
+      fetch('/api/admin/mensagens', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ senha }),
@@ -330,7 +313,7 @@
             showState(data.erro || 'Muitas tentativas. Aguarde alguns segundos e recarregue a página.', true);
             return;
           }
-          showState(data.erro || 'Não foi possível carregar as sugestões agora.', true);
+          showState(data.erro || 'Não foi possível carregar as mensagens agora.', true);
         })
         .catch(() => {
           showState('Não foi possível conectar ao servidor.', true);

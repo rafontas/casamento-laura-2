@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="style.css?v=14">
+  <link rel="stylesheet" href="style.css?v=15">
 </head>
 <body>
 
@@ -145,11 +145,11 @@
             </div>
           </div>
 
-          <div class="info-card" id="hospedagem">
-            <span class="info-card__icon" aria-hidden="true">🛏</span>
-            <h3 class="info-card__title">Hospedagem</h3>
-            <p class="info-card__text">Opções de hospedagem<br>próximas ao local</p>
-          </div>
+          <button type="button" class="info-card info-card--link" id="mensagemBtn">
+            <span class="info-card__icon" aria-hidden="true">💌</span>
+            <h3 class="info-card__title">Deixa uma mensagem para os noivos</h3>
+            <p class="info-card__text">Escreva um recadinho pra gente guardar</p>
+          </button>
         </div>
 
         </div>
@@ -196,6 +196,21 @@
     </div>
   </footer>
 
+  <!-- MODAL: MENSAGEM PARA OS NOIVOS -->
+  <div class="msg-modal" id="mensagemModal" hidden>
+    <button type="button" class="msg-modal__backdrop" aria-label="Fechar"></button>
+    <div class="msg-modal__content" role="dialog" aria-modal="true" aria-labelledby="mensagemModalTitle">
+      <button type="button" class="msg-modal__close" id="mensagemModalClose" aria-label="Fechar">&times;</button>
+      <h3 class="msg-modal__title" id="mensagemModalTitle">Deixe uma mensagem para os noivos</h3>
+      <form class="msg-modal__form" id="mensagemForm" novalidate>
+        <input type="text" id="mensagemNomeInput" name="nome" placeholder="Seu nome (opcional)" maxlength="80">
+        <textarea id="mensagemTextoInput" name="mensagem" placeholder="Escreva sua mensagem..." maxlength="500" rows="4" required></textarea>
+        <button type="submit" class="btn btn--primary">Enviar mensagem</button>
+        <p class="msg-modal__feedback" id="mensagemFeedback" role="status" aria-live="polite"></p>
+      </form>
+    </div>
+  </div>
+
   <!-- EASTER EGG: AVENGERS -->
   <div class="easter-egg" id="avengersOverlay" hidden>
     <button type="button" class="easter-egg__backdrop" aria-label="Fechar"></button>
@@ -224,6 +239,6 @@
     </svg>
   </button>
 
-  <script src="script.js?v=9"></script>
+  <script src="script.js?v=10"></script>
 </body>
 </html>
