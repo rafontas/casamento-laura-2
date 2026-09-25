@@ -387,6 +387,39 @@ ul {
   color: var(--color-accent);
 }
 
+.info-card__map-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.map-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--color-text);
+  background: var(--color-bg-soft);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  text-decoration: none;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+
+.map-link svg {
+  flex-shrink: 0;
+}
+
+.map-link:hover {
+  border-color: var(--color-burgundy);
+  color: var(--color-burgundy);
+  background: var(--color-bg-card);
+}
+
 .info-card__icon {
   display: inline-block;
   font-size: 1.6rem;
