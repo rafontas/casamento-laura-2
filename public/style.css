@@ -1384,16 +1384,27 @@ body.no-scroll {
   background: var(--color-bg-soft);
 }
 
+/* As colunas da galeria são montadas via JS (script.js), não com
+   "column-count" do CSS puro — assim, quando mais fotos são carregadas
+   (rolando a página), elas só são adicionadas ao final da coluna mais
+   curta, sem reorganizar as fotos que já estavam na tela. */
 .gallery__grid {
-  column-count: 3;
-  column-gap: 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.gallery__column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 .gallery__item {
   display: block;
   width: 100%;
-  margin-bottom: 20px;
-  break-inside: avoid;
   border: none;
   padding: 0;
   background: none;
@@ -1426,17 +1437,7 @@ body.no-scroll {
   padding: 24px 0;
 }
 
-@media (max-width: 900px) {
-  .gallery__grid {
-    column-count: 2;
-  }
-}
-
 @media (max-width: 560px) {
-  .gallery__grid {
-    column-count: 1;
-  }
-
   .gallery {
     padding: 72px 0;
   }

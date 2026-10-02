@@ -444,6 +444,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const GALLERY_PAGE_SIZE = 30;
 
+    // As fotos são distribuídas em colunas reais (divs), uma foto de cada
+    // vez, sempre na próxima coluna da fila (round-robin) — ao contrário do
+    // "column-count" do CSS, isso nunca reorganiza as fotos que já estão na
+    // tela quando mais fotos chegam (rolando a página), porque cada coluna
+    // só recebe itens novos no final dela, sem recalcular nada.
+    const GALLERY_BREAKPOINT_2COL = 900;
+    const GALLERY_BREAKPOINT_1COL = 560;
+
+    const numeroDeColunas = () => {
+      if (window.innerWidth <= GALLERY_BREAKPOINT_1COL) return 1;
+      if (window.innerWidth <= GALLERY_BREAKPOINT_2COL) return 2;
+      return 3;
+    };
+
+    const colunas = [];
+    const totalColunas = numeroDeColunas();
+    for (let i = 0; i < totalColunas; i++) {
+      const coluna = document.createElement('div');
+      coluna.className = 'gallery__column';
+      galleryGrid.appendChild(coluna);
+      colunas.push(coluna);
+    }
+    let proximaColuna = 0;
+
     let galleryItems = [];
     let currentIndex = 0;
     let lightboxHideTimer = null;
@@ -504,7 +528,8 @@ document.addEventListener('DOMContentLoaded', () => {
         img.loading = 'lazy';
 
         item.appendChild(img);
-        galleryGrid.appendChild(item);
+        colunas[proximaColuna].appendChild(item);
+        proximaColuna = (proximaColuna + 1) % colunas.length;
 
         const index = galleryItems.length;
         galleryItems.push(item);
