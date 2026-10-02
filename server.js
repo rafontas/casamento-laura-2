@@ -6,7 +6,17 @@ const crypto = require('crypto');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const DATA_DIR = path.join(__dirname, 'data');
+// Em produção (Hostinger), cada deploy via Git cria uma pasta nova pra
+// versão do app — então uma pasta "data" dentro do próprio projeto seria
+// apagada a cada deploy, junto com as músicas e mensagens já salvas.
+// Por isso, se DATA_DIR estiver definida (variável de ambiente configurada
+// no painel, apontando pra uma pasta FORA da área de deploy), os dados
+// ficam guardados lá e sobrevivem a todos os deploys futuros. Sem essa
+// variável (ex.: no seu computador), continua usando a pasta "data" ao
+// lado do server.js, como sempre.
+const DATA_DIR = process.env.DATA_DIR
+  ? path.resolve(process.env.DATA_DIR)
+  : path.join(__dirname, 'data');
 const MUSIC_FILE = path.join(DATA_DIR, 'musicas.json');
 const MESSAGES_FILE = path.join(DATA_DIR, 'mensagens.json');
 
@@ -310,4 +320,10 @@ app.use((req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Servidor rodando em http://localhost:${PORT}`);
+  // Ajuda a descobrir, pelos logs do painel da Hostinger, onde a aplicação
+  // está rodando de verdade (essa pasta muda a cada deploy) e onde os
+  // dados estão sendo salvos (essa, se DATA_DIR estiver configurada,
+  // deve ser sempre a mesma em todos os deploys).
+  console.log(`[info] Pasta da aplicação nesta versão: ${__dirname}`);
+  console.log(`[info] Pasta onde os dados estão sendo salvos: ${DATA_DIR}`);
 });
