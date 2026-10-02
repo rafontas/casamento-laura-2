@@ -101,8 +101,16 @@ function writeMensagens(mensagens) {
 // ---- Galeria de fotos (pasta persistente DATA_DIR/galeria-fotos) ----
 
 function ensureGalleryDir() {
-  if (!fs.existsSync(GALLERY_DIR)) {
-    fs.mkdirSync(GALLERY_DIR, { recursive: true });
+  // Importante: isso roda assim que o servidor liga (não só quando alguém
+  // acessa a galeria). Por isso é blindado com try/catch — se a pasta da
+  // galeria tiver algum problema de permissão no servidor, isso não pode
+  // derrubar o site inteiro, só a galeria deve ficar vazia até resolver.
+  try {
+    if (!fs.existsSync(GALLERY_DIR)) {
+      fs.mkdirSync(GALLERY_DIR, { recursive: true });
+    }
+  } catch (err) {
+    console.error(`[galeria] Não foi possível acessar/criar a pasta ${GALLERY_DIR}:`, err.message);
   }
 }
 
