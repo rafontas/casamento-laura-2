@@ -9,3 +9,9 @@ data/mensagens.json
 
 # Senha do painel administrativo — nunca deve ir para o repositório.
 admin-config.json
+
+# Fotos da galeria — em produção fica dentro de DATA_DIR (fora da área de
+# deploy); localmente, fica numa pasta "galeria-fotos" ao lado do server.js,
+# pra testar com fotos reais sem precisar configurar nada.
+galeria-fotos/
+data/galeria-fotos/

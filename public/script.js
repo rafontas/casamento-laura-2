@@ -423,6 +423,142 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // ---- Galeria de fotos com lightbox (só existe em galeria.html) ----
+  // As fotos não vêm mais fixas no HTML: a lista é buscada aos poucos em
+  // /api/galeria (30 por vez), que reflete o que estiver na pasta
+  // persistente (DATA_DIR/galeria-fotos) no servidor — assim dá pra trocar
+  // ou adicionar fotos sem precisar mexer em código nem fazer um novo
+  // deploy. Conforme a pessoa rola a página até perto do fim da galeria,
+  // mais fotos vão sendo buscadas e adicionadas, em vez de carregar tudo
+  // de uma vez só.
+  const galleryGrid = document.getElementById('galleryGrid');
+  const lightbox = document.getElementById('lightbox');
+
+  if (galleryGrid && lightbox) {
+    const galleryEmpty = document.getElementById('galleryEmpty');
+    const gallerySentinel = document.getElementById('gallerySentinel');
+    const lightboxImg = document.getElementById('lightboxImg');
+    const lightboxClose = document.getElementById('lightboxClose');
+    const lightboxPrev = document.getElementById('lightboxPrev');
+    const lightboxNext = document.getElementById('lightboxNext');
+
+    const GALLERY_PAGE_SIZE = 30;
+
+    let galleryItems = [];
+    let currentIndex = 0;
+    let lightboxHideTimer = null;
+    let proximoOffset = 0;
+    let carregando = false;
+    let acabou = false;
+
+    const isLightboxOpen = () => lightbox.classList.contains('is-active');
+
+    const showImage = (index) => {
+      if (!galleryItems.length) return;
+      currentIndex = (index + galleryItems.length) % galleryItems.length;
+      const img = galleryItems[currentIndex].querySelector('img');
+      lightboxImg.src = img.getAttribute('data-full') || img.src;
+      lightboxImg.alt = img.alt;
+    };
+
+    const openLightbox = (index) => {
+      clearTimeout(lightboxHideTimer);
+      showImage(index);
+      lightbox.hidden = false;
+      // Força o navegador a "perceber" o hidden=false antes de adicionar
+      // a classe, para a transição funcionar (mesma técnica do easter egg).
+      void lightbox.offsetWidth;
+      lightbox.classList.add('is-active');
+      document.body.classList.add('no-scroll');
+    };
+
+    const closeLightbox = () => {
+      lightbox.classList.remove('is-active');
+      document.body.classList.remove('no-scroll');
+      lightboxHideTimer = setTimeout(() => {
+        lightbox.hidden = true;
+      }, 300);
+    };
+
+    lightboxClose.addEventListener('click', closeLightbox);
+    lightbox.querySelector('.lightbox__backdrop').addEventListener('click', closeLightbox);
+    lightboxPrev.addEventListener('click', () => showImage(currentIndex - 1));
+    lightboxNext.addEventListener('click', () => showImage(currentIndex + 1));
+
+    document.addEventListener('keydown', (event) => {
+      if (!isLightboxOpen()) return;
+      if (event.key === 'Escape') closeLightbox();
+      if (event.key === 'ArrowLeft') showImage(currentIndex - 1);
+      if (event.key === 'ArrowRight') showImage(currentIndex + 1);
+    });
+
+    const adicionarFotos = (arquivos) => {
+      arquivos.forEach((arquivo) => {
+        const item = document.createElement('button');
+        item.type = 'button';
+        item.className = 'gallery__item';
+
+        const img = document.createElement('img');
+        img.src = `/galeria-fotos/${encodeURIComponent(arquivo)}`;
+        img.alt = 'Laura e João Vitor';
+        img.loading = 'lazy';
+
+        item.appendChild(img);
+        galleryGrid.appendChild(item);
+
+        const index = galleryItems.length;
+        galleryItems.push(item);
+        item.addEventListener('click', () => openLightbox(index));
+      });
+    };
+
+    const carregarMaisFotos = () => {
+      if (carregando || acabou) return;
+      carregando = true;
+
+      fetch(`/api/galeria?offset=${proximoOffset}&limit=${GALLERY_PAGE_SIZE}`)
+        .then((res) => res.json())
+        .then((dados) => {
+          const arquivos = (dados && dados.arquivos) || [];
+
+          if (!galleryItems.length && !arquivos.length) {
+            if (galleryEmpty) galleryEmpty.hidden = false;
+          }
+
+          adicionarFotos(arquivos);
+
+          if (dados && typeof dados.proximoOffset === 'number') {
+            proximoOffset = dados.proximoOffset;
+          } else {
+            acabou = true;
+            if (gallerySentinel) gallerySentinel.hidden = true;
+          }
+        })
+        .catch((err) => {
+          console.error('Erro ao carregar a galeria:', err);
+          acabou = true;
+          if (!galleryItems.length && galleryEmpty) galleryEmpty.hidden = false;
+        })
+        .finally(() => {
+          carregando = false;
+        });
+    };
+
+    if (gallerySentinel && 'IntersectionObserver' in window) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((entry) => entry.isIntersecting)) {
+            carregarMaisFotos();
+          }
+        },
+        { rootMargin: '400px' }
+      );
+      observer.observe(gallerySentinel);
+    }
+
+    carregarMaisFotos();
+  }
+
   // ---- Grid de presentes (só existe em presentes.html) ----
   const currencyFormatter = new Intl.NumberFormat('pt-BR', {
     style: 'currency',

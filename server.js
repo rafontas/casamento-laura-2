@@ -20,6 +20,19 @@ const DATA_DIR = process.env.DATA_DIR
 const MUSIC_FILE = path.join(DATA_DIR, 'musicas.json');
 const MESSAGES_FILE = path.join(DATA_DIR, 'mensagens.json');
 
+// Fotos da galeria (galeria.html): em produção, ficam dentro de DATA_DIR,
+// numa pasta própria, pelo mesmo motivo das músicas e mensagens — assim,
+// pra trocar ou adicionar fotos, basta colocar os arquivos nessa pasta
+// (direto pelo gerenciador de arquivos da Hostinger, por exemplo), sem
+// precisar mexer em código nem fazer um novo deploy. No seu computador
+// (sem DATA_DIR configurada), lê direto da pasta "galeria-fotos" ao lado
+// do server.js, pra facilitar testar com fotos reais sem precisar
+// configurar nada.
+const GALLERY_DIR = process.env.DATA_DIR
+  ? path.join(DATA_DIR, 'galeria-fotos')
+  : path.join(__dirname, 'galeria-fotos');
+const GALLERY_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif']);
+
 // Arquivo com a senha do painel administrativo (fora do git, veja .gitignore)
 const ADMIN_CONFIG_FILE = path.join(__dirname, 'admin-config.json');
 
@@ -83,6 +96,32 @@ function readMensagens() {
 function writeMensagens(mensagens) {
   ensureMessagesFile();
   fs.writeFileSync(MESSAGES_FILE, JSON.stringify(mensagens, null, 2), 'utf-8');
+}
+
+// ---- Galeria de fotos (pasta persistente DATA_DIR/galeria-fotos) ----
+
+function ensureGalleryDir() {
+  if (!fs.existsSync(GALLERY_DIR)) {
+    fs.mkdirSync(GALLERY_DIR, { recursive: true });
+  }
+}
+
+// Lista os arquivos de imagem dentro da pasta da galeria, em ordem natural
+// (foto2 antes de foto10), ignorando arquivos ocultos e qualquer coisa que
+// não seja uma imagem.
+function listarFotosGaleria() {
+  ensureGalleryDir();
+  let arquivos;
+  try {
+    arquivos = fs.readdirSync(GALLERY_DIR);
+  } catch (err) {
+    console.error('[galeria] Erro lendo a pasta da galeria:', err);
+    return [];
+  }
+  return arquivos
+    .filter((nome) => !nome.startsWith('.'))
+    .filter((nome) => GALLERY_EXTENSIONS.has(path.extname(nome).toLowerCase()))
+    .sort((a, b) => a.localeCompare(b, 'pt-BR', { numeric: true, sensitivity: 'base' }));
 }
 
 function gerarId() {
@@ -170,6 +209,33 @@ app.use(express.json());
 
 // Serve todos os arquivos da pasta "public"
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Serve as fotos da galeria diretamente da pasta persistente (DATA_DIR)
+ensureGalleryDir();
+app.use('/galeria-fotos', express.static(GALLERY_DIR));
+
+// ---- API: lista de fotos da galeria (galeria.html), paginada ----
+// A página carrega as fotos aos poucos (30 por vez, por padrão) em vez de
+// tudo de uma vez, buscando mais conforme a pessoa rola a tela. Por isso
+// essa rota aceita "offset" (a partir de qual foto) e "limit" (quantas
+// fotos por vez) via query string, e devolve "proximoOffset" (ou null,
+// quando já mostrou todas) pra página saber se deve buscar mais.
+app.get('/api/galeria', (req, res) => {
+  const todasAsFotos = listarFotosGaleria();
+
+  const offset = Math.max(parseInt(req.query.offset, 10) || 0, 0);
+  const limitePedido = parseInt(req.query.limit, 10) || 30;
+  const limit = Math.min(Math.max(limitePedido, 1), 100);
+
+  const pagina = todasAsFotos.slice(offset, offset + limit);
+  const fimDaPagina = offset + pagina.length;
+
+  res.json({
+    arquivos: pagina,
+    total: todasAsFotos.length,
+    proximoOffset: fimDaPagina < todasAsFotos.length ? fimDaPagina : null,
+  });
+});
 
 // ---- API: sugestões de música (musica.html) ----
 
@@ -326,4 +392,5 @@ app.listen(PORT, () => {
   // deve ser sempre a mesma em todos os deploys).
   console.log(`[info] Pasta da aplicação nesta versão: ${__dirname}`);
   console.log(`[info] Pasta onde os dados estão sendo salvos: ${DATA_DIR}`);
+  console.log(`[info] Pasta de onde as fotos da galeria estão sendo lidas: ${GALLERY_DIR}`);
 });

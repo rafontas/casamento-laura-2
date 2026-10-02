@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nossa História | Laura &amp; João Vitor</title>
+  <title>Galeria | Laura &amp; João Vitor</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,8 +22,8 @@
 
       <nav class="nav" id="nav">
         <a href="index.html#inicio" class="nav__link">Início</a>
-        <a href="historia.html" class="nav__link is-active">Nossa História</a>
-        <a href="galeria.html" class="nav__link">Galeria</a>
+        <a href="historia.html" class="nav__link">Nossa História</a>
+        <a href="galeria.html" class="nav__link is-active">Galeria</a>
         <a href="musica.html" class="nav__link">Sugestão de Música</a>
         <a href="presentes.html" class="nav__link">Presentes</a>
         <a href="index.html#rsvp" class="nav__link">RSVP</a>
@@ -37,78 +37,21 @@
 
   <main>
 
-    <!-- NOSSA HISTÓRIA -->
-    <section class="story" id="historia">
-      <img src="assets/images/branch-5.svg?v=4" alt="" class="story__leaf" aria-hidden="true">
+    <!-- GALERIA -->
+    <section class="gallery" id="galeria">
       <div class="container">
         <div class="story__header">
-          <p class="eyebrow">Como tudo começou</p>
-          <h2 class="section-title">Nossa história</h2>
+          <p class="eyebrow">Alguns momentos</p>
+          <h2 class="section-title">Galeria de Fotos</h2>
           <div class="rule" aria-hidden="true"></div>
           <p class="story__intro">
-            Cada casal tem uma história para contar. Aqui está um pouco da nossa —
-            dos primeiros encontros até o "sim".
+            Um recorte de momentos nossos pelo caminho até aqui.
           </p>
         </div>
 
-        <div class="timeline">
-          <div class="timeline__item">
-            <span class="timeline__dot" aria-hidden="true"></span>
-            <div class="timeline__card">
-              <span class="timeline__date">08 · 01 · 2016</span>
-              <h3 class="timeline__title">Nos conhecemos</h3>
-            </div>
-          </div>
-
-          <div class="timeline__item">
-            <span class="timeline__dot" aria-hidden="true"></span>
-            <div class="timeline__card">
-              <span class="timeline__date">12 · 03 · 2017</span>
-              <h3 class="timeline__title">2º pedido de namoro e começamos a namorar</h3>
-            </div>
-          </div>
-
-          <div class="timeline__item">
-            <span class="timeline__dot" aria-hidden="true"></span>
-            <div class="timeline__card">
-              <span class="timeline__date">02 · 10 · 2024</span>
-              <h3 class="timeline__title">Assinamos o contrato de compra e venda</h3>
-            </div>
-          </div>
-
-          <div class="timeline__item">
-            <span class="timeline__dot" aria-hidden="true"></span>
-            <div class="timeline__card">
-              <span class="timeline__date">19 · 03 · 2025</span>
-              <h3 class="timeline__title">Pegamos as chaves</h3>
-            </div>
-          </div>
-
-          <div class="timeline__item">
-            <span class="timeline__dot" aria-hidden="true"></span>
-            <div class="timeline__card">
-              <span class="timeline__date">28 · 11 · 2025</span>
-              <h3 class="timeline__title">Dormimos pela primeira vez na nossa casinha</h3>
-            </div>
-          </div>
-
-          <div class="timeline__item">
-            <span class="timeline__dot" aria-hidden="true"></span>
-            <div class="timeline__card">
-              <span class="timeline__date">08 · 02 · 2026</span>
-              <h3 class="timeline__title">Dia do pedido de casamento</h3>
-            </div>
-          </div>
-
-          <div class="timeline__item">
-            <span class="timeline__dot" aria-hidden="true"></span>
-            <div class="timeline__card">
-              <span class="timeline__date">19 · 06 · 2027</span>
-              <h3 class="timeline__title">O grande dia</h3>
-              <p class="timeline__text">E agora é hora de celebrar com quem a gente ama.</p>
-            </div>
-          </div>
-        </div>
+        <div class="gallery__grid" id="galleryGrid"></div>
+        <div class="gallery__sentinel" id="gallerySentinel" aria-hidden="true"></div>
+        <p class="gallery__empty" id="galleryEmpty" hidden>Em breve, mais fotos por aqui!</p>
       </div>
     </section>
 
@@ -131,6 +74,21 @@
       <p class="footer__names">Laura &amp; João Vitor · 19.06.2027</p>
     </div>
   </footer>
+
+  <!-- LIGHTBOX: GALERIA -->
+  <div class="lightbox" id="lightbox" hidden>
+    <button type="button" class="lightbox__backdrop" aria-label="Fechar"></button>
+    <button type="button" class="lightbox__close" id="lightboxClose" aria-label="Fechar">&times;</button>
+    <button type="button" class="lightbox__nav lightbox__nav--prev" id="lightboxPrev" aria-label="Foto anterior">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <button type="button" class="lightbox__nav lightbox__nav--next" id="lightboxNext" aria-label="Próxima foto">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+    </button>
+    <figure class="lightbox__content">
+      <img id="lightboxImg" src="" alt="">
+    </figure>
+  </div>
 
   <!-- EASTER EGG: AVENGERS -->
   <div class="easter-egg" id="avengersOverlay" hidden>
