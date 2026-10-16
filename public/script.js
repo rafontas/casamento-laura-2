@@ -584,6 +584,63 @@ document.addEventListener('DOMContentLoaded', () => {
     carregarMaisFotos();
   }
 
+  // ---- Fotos clicáveis da linha do tempo (só existe em historia.html) ----
+  const timelinePhotoButtons = Array.from(document.querySelectorAll('.timeline__photo-btn'));
+
+  if (timelinePhotoButtons.length && lightbox) {
+    const lightboxImg = document.getElementById('lightboxImg');
+    const lightboxClose = document.getElementById('lightboxClose');
+    const lightboxPrev = document.getElementById('lightboxPrev');
+    const lightboxNext = document.getElementById('lightboxNext');
+
+    let currentIndex = 0;
+    let lightboxHideTimer = null;
+
+    const isLightboxOpen = () => lightbox.classList.contains('is-active');
+
+    const showImage = (index) => {
+      currentIndex = (index + timelinePhotoButtons.length) % timelinePhotoButtons.length;
+      const img = timelinePhotoButtons[currentIndex].querySelector('img');
+      lightboxImg.src = img.getAttribute('data-full') || img.src;
+      lightboxImg.alt = img.alt;
+    };
+
+    const openLightbox = (index) => {
+      clearTimeout(lightboxHideTimer);
+      showImage(index);
+      lightbox.hidden = false;
+      // Força o navegador a "perceber" o hidden=false antes de adicionar
+      // a classe, para a transição funcionar (mesma técnica da galeria).
+      void lightbox.offsetWidth;
+      lightbox.classList.add('is-active');
+      document.body.classList.add('no-scroll');
+    };
+
+    const closeLightbox = () => {
+      lightbox.classList.remove('is-active');
+      document.body.classList.remove('no-scroll');
+      lightboxHideTimer = setTimeout(() => {
+        lightbox.hidden = true;
+      }, 300);
+    };
+
+    timelinePhotoButtons.forEach((btn, index) => {
+      btn.addEventListener('click', () => openLightbox(index));
+    });
+
+    lightboxClose.addEventListener('click', closeLightbox);
+    lightbox.querySelector('.lightbox__backdrop').addEventListener('click', closeLightbox);
+    lightboxPrev.addEventListener('click', () => showImage(currentIndex - 1));
+    lightboxNext.addEventListener('click', () => showImage(currentIndex + 1));
+
+    document.addEventListener('keydown', (event) => {
+      if (!isLightboxOpen()) return;
+      if (event.key === 'Escape') closeLightbox();
+      if (event.key === 'ArrowLeft') showImage(currentIndex - 1);
+      if (event.key === 'ArrowRight') showImage(currentIndex + 1);
+    });
+  }
+
   // ---- Grid de presentes (só existe em presentes.html) ----
   const currencyFormatter = new Intl.NumberFormat('pt-BR', {
     style: 'currency',

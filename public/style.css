@@ -626,14 +626,31 @@ ul {
   margin-bottom: 10px;
 }
 
+.timeline__photo-btn {
+  display: block;
+  width: 100%;
+  padding: 0;
+  margin-bottom: 14px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-radius: var(--radius);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.timeline__photo-btn:hover,
+.timeline__photo-btn:focus-visible {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+}
+
 .timeline__photo {
   display: block;
   width: 100%;
   aspect-ratio: 4 / 3;
   object-fit: cover;
   border-radius: var(--radius);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-  margin-bottom: 14px;
 }
 
 .timeline__text {
