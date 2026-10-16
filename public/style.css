@@ -12,6 +12,7 @@
   --color-bg-card: #ffffff;     /* fundo dos cartões de info */
   --color-green: #7c8563;       /* verde oliva (seção RSVP) */
   --color-green-dark: #656d4f;
+  --color-green-darker: #27481a; 
   --color-text: #3a3226;        /* marrom escuro (texto principal) */
   --color-text-soft: #6b6152;   /* marrom acinzentado (texto de apoio) */
   --color-text-light: #f6efe3;  /* texto claro sobre fundo escuro */
@@ -353,6 +354,10 @@ ul {
   margin-bottom: 14px;
 }
 
+.bloco-grid-inicial {
+  color: var(--color-green-darker);
+}
+
 .section-title {
   font-family: var(--font-display);
   font-weight: 500;
@@ -619,6 +624,16 @@ ul {
   font-weight: 600;
   font-size: 1.35rem;
   margin-bottom: 10px;
+}
+
+.timeline__photo {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: var(--radius);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  margin-bottom: 14px;
 }
 
 .timeline__text {
